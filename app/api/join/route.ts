@@ -6,7 +6,6 @@ import { prisma } from "@/lib/db";
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
-
     const firstName = formData.get("firstName") as string;
     const lastName = formData.get("lastName") as string;
     const email = formData.get("email") as string;
@@ -25,7 +24,6 @@ export async function POST(req: Request) {
     const experience = formData.get("experience") as string;
     const instagram = formData.get("instagram") as string;
     const about = formData.get("about") as string;
-
     const files = formData.getAll("images") as File[];
 
     console.log("CONTENT TYPE:", req.headers.get("content-type"));
@@ -52,11 +50,11 @@ export async function POST(req: Request) {
     }
 
     if (!bust || !waist || !hip || !shoes || !hair || !eyes) {
-  return NextResponse.json(
-    { error: "All measurements required" },
-    { status: 400 }
-  );
-}
+      return NextResponse.json(
+        { error: "All measurements required" },
+        { status: 400 }
+      );
+    }
 
     // email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -88,12 +86,8 @@ export async function POST(req: Request) {
 
     // 📁 Upload directory
     const uploadDir = path.join(process.cwd(), "public/uploads");
-
-    // ✅ auto create folder if not exists
     await mkdir(uploadDir, { recursive: true });
-
     const imageUrls: string[] = [];
-
     // 📸 Save all images
     for (const file of files) {
       if (!file || typeof file === "string") continue;
