@@ -4,9 +4,7 @@ import { v2 as cloudinary } from "cloudinary";
 
 // ✅ Cloudinary config
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
-  api_key: process.env.CLOUDINARY_API_KEY!,
-  api_secret: process.env.CLOUDINARY_API_SECRET!,
+  secure: true,
 });
 
 export async function POST(req: Request) {
@@ -111,6 +109,38 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: "Success", data: join }, { status: 201 });
 
+  } catch (error) {
+    console.error("❌ ERROR:", error);
+
+    return NextResponse.json(
+      {
+        error: "Internal Server Error",
+        details: error instanceof Error ? error.message : "Unknown",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// get all join applications
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const gender = searchParams.get("gender");
+    console.log("🔍 SEARCH PARAMS:", searchParams, "GENDER:", gender)
+
+    const joins = await prisma.join.findMany({
+      include: {
+        images: true,
+        measurements: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      where: gender ? { gender } : undefined,
+    });
+
+    return NextResponse.json({ data: joins }, { status: 200 });
   } catch (error) {
     console.error("❌ ERROR:", error);
 
